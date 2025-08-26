@@ -52,32 +52,32 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: `你是一個專業的收據解析助手。請仔細分析收據文字，識別餐點品項和價格。
+            content: `You are a professional receipt parser. Carefully analyze receipt text and identify all food items and prices.
 
-規則：
-1. 找出所有餐點品項名稱和對應價格
-2. 品項名稱要完整且有意義（去除數字、數量等）
-3. 價格前面一定有 $ 符號
-4. 識別 subtotal（小計）、tax（稅）、tip（小費）、total（總計）
-5. 回傳��� JSON 格式，不要其他文字
+Rules:
+1. Find ALL food items and their corresponding prices (DO NOT remove duplicates)
+2. Item names should be complete and meaningful (remove numbers, quantities)
+3. Prices must have $ symbol
+4. Identify subtotal, tax, tip, and total
+5. Return JSON format only, no other text
 
-JSON 格式：
+JSON format:
 {
   "items": [
     {
-      "name": "品項名稱",
-      "price": 數字（不含$符號）
+      "name": "Item name",
+      "price": number (without $ symbol)
     }
   ],
-  "subtotal": 數字,
-  "tax": 數字,
-  "tip": 數字,
-  "total": 數字
+  "subtotal": number,
+  "tax": number,
+  "tip": number,
+  "total": number
 }`
           },
           {
             role: 'user',
-            content: `請解析這張收據：\n\n${ocrText}`
+            content: `Please parse this receipt:\n\n${ocrText}`
           }
         ],
         temperature: 0.1,

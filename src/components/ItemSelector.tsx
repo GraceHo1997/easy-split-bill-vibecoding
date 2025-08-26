@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Checkbox } from './ui/checkbox';
 import { Input } from './ui/input';
-import { ArrowLeft, Calculator } from 'lucide-react';
+import { ArrowLeft, Calculator, Users } from 'lucide-react';
 import { useToast } from './ui/use-toast';
 
 interface ParsedReceipt {
@@ -39,6 +39,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       ...item,
       id: `item-${index}`,
       selected: false,
+      shareCount: 1,
     }))
   );
   const [customAmount, setCustomAmount] = useState<string>('');
@@ -49,13 +50,21 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
     ));
   };
 
+  const updateShareCount = (id: string, shareCount: number) => {
+    if (shareCount > 0) {
+      setItems(items.map(item => 
+        item.id === id ? { ...item, shareCount } : item
+      ));
+    }
+  };
+
   const selectedItems = useMemo(() => {
     return items.filter(item => item.selected);
   }, [items]);
 
   const calculateMyShare = () => {
-    // Calculate selected items total
-    const selectedTotal = selectedItems.reduce((sum, item) => sum + item.price, 0);
+    // Calculate selected items total with sharing
+    const selectedTotal = selectedItems.reduce((sum, item) => sum + (item.price / item.shareCount), 0);
     
     // Add custom amount if entered
     const customAmountNum = customAmount ? parseFloat(customAmount) || 0 : 0;
@@ -64,8 +73,8 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
     
     if (mySubtotal <= 0) {
       toast({
-        title: "請選擇品項",
-        description: "請選擇至少一個品項或輸入金額",
+        title: "Please select items",
+        description: "Please select at least one item or enter an amount",
         variant: "destructive",
       });
       return;
@@ -100,31 +109,31 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       <div className="flex items-center gap-4">
         <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
-          回上一頁
+          Back
         </Button>
-        <h2 className="text-2xl font-bold">選擇您的品項</h2>
+        <h2 className="text-2xl font-bold">Select Your Items</h2>
       </div>
 
       {/* Receipt Summary */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">收據總覽</CardTitle>
+          <CardTitle className="text-lg">Receipt Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex justify-between">
-            <span>小計:</span>
+            <span>Subtotal:</span>
             <span>${parsedReceipt.subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
-            <span>稅金:</span>
+            <span>Tax:</span>
             <span>${parsedReceipt.tax.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
-            <span>小費:</span>
+            <span>Tip:</span>
             <span>${parsedReceipt.tip.toFixed(2)}</span>
           </div>
           <div className="flex justify-between font-bold border-t pt-2">
-            <span>總計:</span>
+            <span>Total:</span>
             <span>${parsedReceipt.total.toFixed(2)}</span>
           </div>
         </CardContent>
@@ -133,7 +142,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       {/* Items Selection */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">品項列表</CardTitle>
+          <CardTitle className="text-lg">Item List</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -145,7 +154,22 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                 />
                 <div className="flex-1 flex justify-between items-center">
                   <span className="font-medium">{item.name}</span>
-                  <span className="text-muted-foreground">${item.price.toFixed(2)}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-muted-foreground">${item.price.toFixed(2)}</span>
+                    {item.selected && (
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <Input
+                          type="number"
+                          min="1"
+                          value={item.shareCount}
+                          onChange={(e) => updateShareCount(item.id, parseInt(e.target.value) || 1)}
+                          className="w-16 h-8 text-center"
+                        />
+                        <span className="text-sm text-muted-foreground">people</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -154,18 +178,18 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
           {/* Custom Amount Input */}
           <div className="mt-6 p-4 border rounded-lg bg-muted/50">
             <label className="block text-sm font-medium mb-2">
-              或直接輸入您的消費金額:
+              Or enter your total amount directly:
             </label>
             <Input
               type="number"
-              placeholder="輸入金額（例如: 25.50）"
+              placeholder="Enter amount (e.g. 25.50)"
               value={customAmount}
               onChange={(e) => setCustomAmount(e.target.value)}
               step="0.01"
               min="0"
             />
             <p className="text-xs text-muted-foreground mt-1">
-              如果您知道確切金額，可直接在此輸入
+              If you know the exact amount, enter it here
             </p>
           </div>
         </CardContent>
@@ -175,27 +199,34 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       {hasSelection && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">您的選擇</CardTitle>
+            <CardTitle className="text-lg">Your Selection</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {selectedItems.map((item) => (
                 <div key={item.id} className="flex justify-between">
-                  <span>{item.name}</span>
-                  <span>${item.price.toFixed(2)}</span>
+                  <span>
+                    {item.name} 
+                    {item.shareCount > 1 && (
+                      <span className="text-muted-foreground ml-1">
+                        (÷{item.shareCount})
+                      </span>
+                    )}
+                  </span>
+                  <span>${(item.price / item.shareCount).toFixed(2)}</span>
                 </div>
               ))}
               {customAmount && parseFloat(customAmount) > 0 && (
                 <div className="flex justify-between">
-                  <span>自訂金額</span>
+                  <span>Custom amount</span>
                   <span>${parseFloat(customAmount).toFixed(2)}</span>
                 </div>
               )}
               <div className="border-t pt-2 font-bold">
                 <div className="flex justify-between">
-                  <span>小計:</span>
+                  <span>Subtotal:</span>
                   <span>${(
-                    selectedItems.reduce((sum, item) => sum + item.price, 0) +
+                    selectedItems.reduce((sum, item) => sum + (item.price / item.shareCount), 0) +
                     (customAmount ? parseFloat(customAmount) || 0 : 0)
                   ).toFixed(2)}</span>
                 </div>
@@ -209,7 +240,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       <div className="flex gap-4">
         {hasSelection && (
           <Button variant="outline" onClick={clearSelection}>
-            清除選擇
+            Clear Selection
           </Button>
         )}
         <Button 
@@ -218,7 +249,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
           className="flex items-center gap-2 flex-1"
         >
           <Calculator className="h-4 w-4" />
-          計算我的分攤金額
+          Calculate My Share
         </Button>
       </div>
     </div>
