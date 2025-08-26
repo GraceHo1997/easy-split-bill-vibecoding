@@ -42,9 +42,21 @@ serve(async (req) => {
 
     console.log(`Processing file: ${file.name}, type: ${file.type}, size: ${file.size}`);
 
-    // Convert file to base64
+    // Convert file to base64 using Deno's built-in method
     const arrayBuffer = await file.arrayBuffer();
-    const base64Image = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    
+    // Use Deno's built-in base64 encoding which is more efficient
+    const decoder = new TextDecoder('utf-8');
+    const encoder = new TextEncoder();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    
+    // Convert to base64 using btoa with proper string conversion
+    let binaryString = '';
+    const len = uint8Array.byteLength;
+    for (let i = 0; i < len; i++) {
+      binaryString += String.fromCharCode(uint8Array[i]);
+    }
+    const base64Image = btoa(binaryString);
 
     // Prepare the request for Google Vision API
     const visionRequest = {
