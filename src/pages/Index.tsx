@@ -166,6 +166,7 @@ const Index = () => {
             <ItemSelector 
               ocrText={ocrText}
               onCalculate={handleCalculate}
+              onBack={() => setCurrentStep('upload')}
             />
           )}
 
