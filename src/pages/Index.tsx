@@ -147,7 +147,7 @@ const Index = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary text-primary-foreground mb-4">
             <Receipt className="w-8 h-8" />
           </div>
-          <h1 className="text-4xl font-bold mb-2">Expense Clarify</h1>
+          <h1 className="text-4xl font-bold mb-2">EasySplit</h1>
           <p className="text-lg text-muted-foreground mb-6">
             Split restaurant bills fairly with AI-powered receipt scanning
           </p>
