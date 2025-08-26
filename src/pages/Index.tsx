@@ -7,78 +7,104 @@ import { Receipt, Users, Calculator, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-interface LineItem {
-  id: string;
-  text: string;
-  price: number;
-  selected: boolean;
+interface ParsedReceipt {
+  items: Array<{
+    name: string;
+    price: number;
+    selected?: boolean;
+  }>;
+  subtotal: number;
+  tax: number;
+  tip: number;
+  total: number;
+}
+
+interface BillTotals {
+  subtotal: number;
+  tax: number;
+  tip: number;
+  total: number;
+  userShare: number;
 }
 
 type Step = 'upload' | 'select' | 'summary';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState<Step>('upload');
-  const [ocrText, setOcrText] = useState('');
-  const [selectedItems, setSelectedItems] = useState<LineItem[]>([]);
-  const [billTotals, setBillTotals] = useState({ subtotal: 0, tax: 0, tip: 0, total: 0 });
+  const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
+  const [billTotals, setBillTotals] = useState<BillTotals | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
     setIsProcessing(true);
-    
     try {
-      toast({
-        title: "Processing receipt...",
-        description: "Extracting text using AI recognition"
-      });
-
       const formData = new FormData();
       formData.append('file', file);
 
-      const { data, error } = await supabase.functions.invoke('process-receipt', {
+      // First, process the receipt with OCR
+      const { data: ocrData, error: ocrError } = await supabase.functions.invoke('process-receipt', {
         body: formData,
       });
 
-      if (error) {
-        throw new Error(error.message);
+      if (ocrError || !ocrData?.success) {
+        console.error('Error processing receipt:', ocrError);
+        toast({
+          title: "處理錯誤",
+          description: "無法處理您的收據，請稍後再試",
+          variant: "destructive",
+        });
+        return;
       }
 
-      if (!data?.success) {
-        throw new Error(data?.error || 'Failed to process receipt');
-      }
-
-      setOcrText(data.text);
-      setCurrentStep('select');
-      
-      toast({
-        title: "Receipt processed!",
-        description: "Text extracted successfully. Now select your items."
+      // Then, interpret the OCR text with OpenAI
+      const { data: interpretData, error: interpretError } = await supabase.functions.invoke('interpret-receipt', {
+        body: { ocrText: ocrData.text },
       });
 
-    } catch (error: any) {
-      console.error('Upload error:', error);
+      if (interpretError || !interpretData?.success) {
+        console.error('Error interpreting receipt:', interpretError);
+        toast({
+          title: "解析錯誤",
+          description: "無法解析收據內容，請稍後再試",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setParsedReceipt(interpretData.interpretation);
+      setCurrentStep('select');
       toast({
-        title: "Processing failed",
-        description: error.message || "Failed to process receipt. Please try again.",
-        variant: "destructive"
+        title: "上傳成功",
+        description: "收據已成功解析，請選擇您的品項",
+      });
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "上傳失敗",
+        description: "處理收據時發生錯誤",
+        variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleCalculate = (items: LineItem[], totals: { subtotal: number; tax: number; tip: number; total: number }) => {
-    setSelectedItems(items);
+  const handleCalculate = (totals: BillTotals) => {
     setBillTotals(totals);
     setCurrentStep('summary');
   };
 
   const handleStartOver = () => {
     setCurrentStep('upload');
-    setOcrText('');
-    setSelectedItems([]);
-    setBillTotals({ subtotal: 0, tax: 0, tip: 0, total: 0 });
+    setParsedReceipt(null);
+    setBillTotals(null);
+  };
+
+  const handleBackToSelect = () => {
+    setCurrentStep('select');
+    setBillTotals(null);
   };
 
   const getStepNumber = (step: Step) => {
@@ -162,19 +188,19 @@ const Index = () => {
             />
           )}
 
-          {currentStep === 'select' && (
-            <ItemSelector 
-              ocrText={ocrText}
+          {currentStep === 'select' && parsedReceipt && (
+            <ItemSelector
+              parsedReceipt={parsedReceipt}
               onCalculate={handleCalculate}
               onBack={() => setCurrentStep('upload')}
             />
           )}
 
-          {currentStep === 'summary' && (
+          {currentStep === 'summary' && billTotals && (
             <PaymentSummary
-              selectedItems={selectedItems}
               billTotals={billTotals}
               onStartOver={handleStartOver}
+              onBack={handleBackToSelect}
             />
           )}
         </div>
