@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { ArrowLeft, DollarSign } from 'lucide-react';
+import { ArrowLeft, DollarSign, Copy } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import { useToast } from '@/hooks/use-toast';
 
 interface ParsedReceipt {
   items: Array<{
@@ -25,6 +27,9 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
   onBack, 
   onStartOver 
 }) => {
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  
   // Calculate the rate for tax and tip
   const taxRate = parsedReceipt.subtotal > 0 ? parsedReceipt.tax / parsedReceipt.subtotal : 0;
   const tipRate = parsedReceipt.subtotal > 0 ? parsedReceipt.tip / parsedReceipt.subtotal : 0;
@@ -35,15 +40,60 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
     return itemPrice + itemTax + itemTip;
   };
 
+  const handleCopyAsImage = async () => {
+    if (!summaryRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(summaryRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+      });
+      
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            toast({
+              title: "Copied to clipboard!",
+              description: "Item breakdown copied as image",
+            });
+          } catch (err) {
+            // Fallback: download the image
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'easysplit-breakdown.png';
+            a.click();
+            URL.revokeObjectURL(url);
+            toast({
+              title: "Download started!",
+              description: "Item breakdown downloaded as image",
+            });
+          }
+        }
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate image",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-        <h2 className="text-2xl font-bold">Individual Item Costs</h2>
-      </div>
+      <div ref={summaryRef} className="space-y-6 p-6 bg-background rounded-lg">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={onBack} className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <h2 className="text-2xl font-bold">Individual Item Costs</h2>
+        </div>
 
       {/* Receipt Summary */}
       <Card>
@@ -108,12 +158,23 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
           </div>
         </CardContent>
       </Card>
+      </div>
 
-      {/* Action Button */}
-      <Button onClick={onStartOver} className="w-full">
-        <DollarSign className="h-4 w-4 mr-2" />
-        Calculate Another Receipt
-      </Button>
+      {/* Action Buttons */}
+      <div className="flex flex-col gap-4">
+        <Button 
+          onClick={handleCopyAsImage}
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+        >
+          <Copy className="h-4 w-4 mr-2" />
+          Copy as Image to Share
+        </Button>
+        
+        <Button onClick={onStartOver} className="w-full" variant="outline">
+          <DollarSign className="h-4 w-4 mr-2" />
+          Calculate Another Receipt
+        </Button>
+      </div>
     </div>
   );
 };

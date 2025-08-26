@@ -132,7 +132,7 @@ const Index = () => {
     switch (step) {
       case 'upload': return 1;
       case 'mode': return 2;
-      case 'individual':
+      case 'individual': return calculationMode === 'individual' ? 3 : 3;
       case 'select': return 3;
       case 'summary': return 4;
       default: return 1;
@@ -172,7 +172,10 @@ const Index = () => {
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-4">
-            {['Upload Receipt', 'Choose Method', 'Calculate', 'Summary'].map((label, index) => {
+            {(calculationMode === 'individual' 
+              ? ['Upload Receipt', 'Choose Method', 'Calculate'] 
+              : ['Upload Receipt', 'Choose Method', 'Calculate', 'Summary']
+            ).map((label, index) => {
               const stepNum = index + 1;
               const isActive = getStepNumber(currentStep) === stepNum;
               const isCompleted = getStepNumber(currentStep) > stepNum;
@@ -190,7 +193,7 @@ const Index = () => {
                   `}>
                     {stepNum}
                   </div>
-                  {index < 3 && (
+                  {index < (calculationMode === 'individual' ? 2 : 3) && (
                     <div className={`
                       w-12 h-0.5 mx-2 transition-all duration-300
                       ${isCompleted ? 'bg-success' : 'bg-border'}
