@@ -1,9 +1,10 @@
 import React, { useRef } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { ArrowLeft, DollarSign, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, DollarSign, Download, Share2, Copy } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ParsedReceipt {
   items: Array<{
@@ -29,6 +30,7 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
 }) => {
   const summaryRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   // Calculate the rate for tax and tip
   const taxRate = parsedReceipt.subtotal > 0 ? parsedReceipt.tax / parsedReceipt.subtotal : 0;
@@ -109,6 +111,49 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
           toast({
             title: "Share not supported",
             description: "Web Share API is not supported on this device",
+            variant: "destructive",
+          });
+        }
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCopyImage = async () => {
+    if (!summaryRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(summaryRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+      });
+      
+      canvas.toBlob(async (blob) => {
+        if (blob && navigator.clipboard && navigator.clipboard.write) {
+          try {
+            const item = new ClipboardItem({ 'image/png': blob });
+            await navigator.clipboard.write([item]);
+            toast({
+              title: "Copied to clipboard!",
+              description: "Item breakdown image copied",
+            });
+          } catch (err) {
+            toast({
+              title: "Copy failed",
+              description: "Unable to copy image to clipboard",
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Copy not supported",
+            description: "Image copying is not supported on this browser",
             variant: "destructive",
           });
         }
@@ -208,14 +253,25 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
             <Download className="h-4 w-4 mr-2" />
             Download Image
           </Button>
-          <Button 
-            onClick={handleShareImage}
-            variant="secondary"
-            className="flex-1"
-          >
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
-          </Button>
+          {isMobile ? (
+            <Button 
+              onClick={handleShareImage}
+              variant="secondary"
+              className="flex-1"
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+          ) : (
+            <Button 
+              onClick={handleCopyImage}
+              variant="secondary"
+              className="flex-1"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              Copy Image
+            </Button>
+          )}
         </div>
         
         <Button onClick={onStartOver} className="w-full" variant="outline">
