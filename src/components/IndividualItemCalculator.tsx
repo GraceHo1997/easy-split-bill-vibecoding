@@ -267,24 +267,23 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-4">
-        <div className="flex gap-4">
+        {isMobile ? (
           <Button 
-            onClick={handleDownloadImage}
-            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={handleShareImage}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download Image
+            <Share2 className="h-4 w-4 mr-2" />
+            Share Image
           </Button>
-          {isMobile ? (
+        ) : (
+          <div className="flex gap-4">
             <Button 
-              onClick={handleShareImage}
-              variant="secondary"
-              className="flex-1"
+              onClick={handleDownloadImage}
+              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
+              <Download className="h-4 w-4 mr-2" />
+              Download Image
             </Button>
-          ) : (
             <Button 
               onClick={handleCopyImage}
               variant="secondary"
@@ -293,8 +292,8 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
               <Copy className="h-4 w-4 mr-2" />
               Copy Image
             </Button>
-          )}
-        </div>
+          </div>
+        )}
         
         <Button onClick={onStartOver} className="w-full" variant="outline">
           <DollarSign className="h-4 w-4 mr-2" />
