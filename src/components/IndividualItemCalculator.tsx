@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { ArrowLeft, DollarSign, Copy } from 'lucide-react';
+import { ArrowLeft, DollarSign, Download, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { useToast } from '@/hooks/use-toast';
 
@@ -40,7 +40,40 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
     return itemPrice + itemTax + itemTip;
   };
 
-  const handleCopyAsImage = async () => {
+  const handleDownloadImage = async () => {
+    if (!summaryRef.current) return;
+    
+    try {
+      const canvas = await html2canvas(summaryRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+      });
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'easysplit-breakdown.png';
+          a.click();
+          URL.revokeObjectURL(url);
+          toast({
+            title: "Download started!",
+            description: "Item breakdown downloaded as image",
+          });
+        }
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleShareImage = async () => {
     if (!summaryRef.current) return;
     
     try {
@@ -51,28 +84,33 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
       });
       
       canvas.toBlob(async (blob) => {
-        if (blob) {
+        if (blob && navigator.share) {
           try {
-            await navigator.clipboard.write([
-              new ClipboardItem({ 'image/png': blob })
-            ]);
+            const file = new File([blob], 'easysplit-breakdown.png', { type: 'image/png' });
+            await navigator.share({
+              title: 'EasySplit Item Breakdown',
+              text: 'Check out this bill breakdown from EasySplit',
+              files: [file]
+            });
             toast({
-              title: "Copied to clipboard!",
-              description: "Item breakdown copied as image",
+              title: "Shared successfully!",
+              description: "Item breakdown shared",
             });
           } catch (err) {
-            // Fallback: download the image
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'easysplit-breakdown.png';
-            a.click();
-            URL.revokeObjectURL(url);
-            toast({
-              title: "Download started!",
-              description: "Item breakdown downloaded as image",
-            });
+            if (err instanceof Error && err.name !== 'AbortError') {
+              toast({
+                title: "Share failed",
+                description: "Unable to share image",
+                variant: "destructive",
+              });
+            }
           }
+        } else {
+          toast({
+            title: "Share not supported",
+            description: "Web Share API is not supported on this device",
+            variant: "destructive",
+          });
         }
       });
     } catch (error) {
@@ -162,13 +200,23 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
 
       {/* Action Buttons */}
       <div className="flex flex-col gap-4">
-        <Button 
-          onClick={handleCopyAsImage}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <Copy className="h-4 w-4 mr-2" />
-          Copy as Image to Share
-        </Button>
+        <div className="flex gap-4">
+          <Button 
+            onClick={handleDownloadImage}
+            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Download Image
+          </Button>
+          <Button 
+            onClick={handleShareImage}
+            variant="secondary"
+            className="flex-1"
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            Share
+          </Button>
+        </div>
         
         <Button onClick={onStartOver} className="w-full" variant="outline">
           <DollarSign className="h-4 w-4 mr-2" />
