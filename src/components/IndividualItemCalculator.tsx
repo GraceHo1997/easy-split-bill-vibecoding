@@ -113,7 +113,6 @@ export const IndividualItemCalculator: React.FC<IndividualItemCalculatorProps> =
             const file = new File([blob], 'easysplit-breakdown.png', { type: 'image/png' });
             await navigator.share({
               title: 'EasySplit Item Breakdown',
-              text: 'Check out this bill breakdown from EasySplit',
               files: [file]
             });
             toast({

@@ -100,7 +100,6 @@ export const PaymentSummary: React.FC<PaymentSummaryProps> = ({
             const file = new File([blob], 'easysplit-summary.png', { type: 'image/png' });
             await navigator.share({
               title: 'EasySplit Payment Summary',
-              text: `My share: $${billTotals.userShare.toFixed(2)}`,
               files: [file]
             });
             toast({
