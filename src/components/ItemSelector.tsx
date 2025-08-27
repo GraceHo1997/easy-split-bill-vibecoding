@@ -51,11 +51,20 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
   };
 
   const updateShareCount = (id: string, shareCount: number) => {
-    if (shareCount > 0) {
-      setItems(items.map(item => 
-        item.id === id ? { ...item, shareCount } : item
-      ));
-    }
+    setItems(items.map(item => 
+      item.id === id ? { ...item, shareCount: shareCount || 1 } : item
+    ));
+  };
+
+  const handleShareCountFocus = (id: string) => {
+    setItems(items.map(item => 
+      item.id === id ? { ...item, shareCount: '' as any } : item
+    ));
+  };
+
+  const handleShareCountBlur = (id: string, value: string) => {
+    const shareCount = parseInt(value) || 1;
+    updateShareCount(id, shareCount);
   };
 
   const selectedItems = useMemo(() => {
@@ -168,6 +177,8 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                           min="1"
                           value={item.shareCount}
                           onChange={(e) => updateShareCount(item.id, parseInt(e.target.value) || 1)}
+                          onFocus={() => handleShareCountFocus(item.id)}
+                          onBlur={(e) => handleShareCountBlur(item.id, e.target.value)}
                           className="w-16 h-8 text-center no-arrows"
                         />
                         <span className="text-sm text-muted-foreground">people</span>
