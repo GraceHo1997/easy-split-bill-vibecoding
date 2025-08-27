@@ -24,6 +24,13 @@ interface BillTotals {
   tip: number;
   total: number;
   userShare: number;
+  selectedItems?: Array<{
+    name: string;
+    price: number;
+    shareCount: number;
+    itemShare: number;
+  }>;
+  customAmount?: number;
 }
 
 interface ItemSelectorProps {
@@ -104,6 +111,13 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       tip: myTip,
       total: myTotal,
       userShare: myTotal,
+      selectedItems: selectedItems.map(item => ({
+        name: item.name,
+        price: item.price,
+        shareCount: item.shareCount,
+        itemShare: Math.round((item.price / item.shareCount) * 100) / 100
+      })),
+      customAmount: customAmountNum > 0 ? customAmountNum : undefined,
     };
 
     onCalculate(totals);

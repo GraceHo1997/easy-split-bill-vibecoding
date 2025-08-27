@@ -12,6 +12,13 @@ interface BillTotals {
   tip: number;
   total: number;
   userShare: number;
+  selectedItems?: Array<{
+    name: string;
+    price: number;
+    shareCount: number;
+    itemShare: number;
+  }>;
+  customAmount?: number;
 }
 
 interface PaymentSummaryProps {
@@ -209,6 +216,35 @@ export const PaymentSummary: React.FC<PaymentSummaryProps> = ({
             <CardTitle className="text-lg">Payment Breakdown</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            {/* Selected Items */}
+            {billTotals.selectedItems && billTotals.selectedItems.length > 0 && (
+              <div className="mb-4">
+                <h4 className="font-medium mb-2">Selected Items:</h4>
+                <div className="space-y-2">
+                  {billTotals.selectedItems.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center py-1 text-sm">
+                      <span>
+                        {item.name}
+                        {item.shareCount > 1 && (
+                          <span className="text-muted-foreground ml-1">
+                            (÷{item.shareCount})
+                          </span>
+                        )}
+                      </span>
+                      <span>${item.itemShare.toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+                {billTotals.customAmount && billTotals.customAmount > 0 && (
+                  <div className="flex justify-between items-center py-1 text-sm border-t pt-2 mt-2">
+                    <span>Custom amount</span>
+                    <span>${billTotals.customAmount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="border-t pt-2 mt-2"></div>
+              </div>
+            )}
+            
             <div className="flex justify-between items-center py-2">
               <span>Your Item Subtotal</span>
               <span className="font-medium">${billTotals.subtotal.toFixed(2)}</span>
