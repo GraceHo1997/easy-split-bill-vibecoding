@@ -39,20 +39,42 @@ export const PaymentSummary: React.FC<PaymentSummaryProps> = ({
         logging: false,
       });
       
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'easysplit-summary.png';
-          a.click();
-          URL.revokeObjectURL(url);
-          toast({
-            title: "Download started!",
-            description: "Payment summary downloaded as image",
-          });
+      if (isMobile) {
+        // On mobile, open image in new tab so user can save to photos
+        const dataURL = canvas.toDataURL('image/png');
+        const newWindow = window.open();
+        if (newWindow) {
+          newWindow.document.write(`
+            <html>
+              <head><title>EasySplit Summary</title></head>
+              <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;">
+                <img src="${dataURL}" style="max-width:100%;height:auto;" alt="Payment Summary" />
+              </body>
+            </html>
+          `);
+          newWindow.document.close();
         }
-      });
+        toast({
+          title: "Image opened!",
+          description: "Long press the image to save it to your photos",
+        });
+      } else {
+        // Desktop: traditional download
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'easysplit-summary.png';
+            a.click();
+            URL.revokeObjectURL(url);
+            toast({
+              title: "Download started!",
+              description: "Payment summary downloaded as image",
+            });
+          }
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
