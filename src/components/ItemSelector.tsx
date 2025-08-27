@@ -72,8 +72,11 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
   }, [items]);
 
   const calculateMyShare = () => {
-    // Calculate selected items total with sharing
-    const selectedTotal = selectedItems.reduce((sum, item) => sum + (item.price / item.shareCount), 0);
+    // Calculate selected items total with sharing (divide first, then round)
+    const selectedTotal = selectedItems.reduce((sum, item) => {
+      const itemShare = Math.round((item.price / item.shareCount) * 100) / 100;
+      return sum + itemShare;
+    }, 0);
     
     // Add custom amount if entered
     const customAmountNum = customAmount ? parseFloat(customAmount) || 0 : 0;
@@ -228,7 +231,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                       </span>
                     )}
                   </span>
-                  <span>${(item.price / item.shareCount).toFixed(2)}</span>
+                  <span>${(Math.round((item.price / item.shareCount) * 100) / 100).toFixed(2)}</span>
                 </div>
               ))}
               {customAmount && parseFloat(customAmount) > 0 && (
@@ -241,7 +244,10 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
                   <span>${(
-                    selectedItems.reduce((sum, item) => sum + (item.price / item.shareCount), 0) +
+                    selectedItems.reduce((sum, item) => {
+                      const itemShare = Math.round((item.price / item.shareCount) * 100) / 100;
+                      return sum + itemShare;
+                    }, 0) +
                     (customAmount ? parseFloat(customAmount) || 0 : 0)
                   ).toFixed(2)}</span>
                 </div>
