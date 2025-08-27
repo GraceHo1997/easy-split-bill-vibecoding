@@ -147,7 +147,11 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
         <CardContent>
           <div className="space-y-3">
             {items.map((item) => (
-              <div key={item.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+              <div 
+                key={item.id} 
+                className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => toggleItem(item.id)}
+              >
                 <Checkbox
                   checked={item.selected}
                   onCheckedChange={() => toggleItem(item.id)}
@@ -157,14 +161,14 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                   <div className="flex items-center gap-3">
                     <span className="text-muted-foreground">${item.price.toFixed(2)}</span>
                     {item.selected && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         <Users className="h-4 w-4" />
                         <Input
                           type="number"
                           min="1"
                           value={item.shareCount}
                           onChange={(e) => updateShareCount(item.id, parseInt(e.target.value) || 1)}
-                          className="w-16 h-8 text-center"
+                          className="w-16 h-8 text-center no-arrows"
                         />
                         <span className="text-sm text-muted-foreground">people</span>
                       </div>
