@@ -125,14 +125,20 @@ export const TipInput: React.FC<TipInputProps> = ({ parsedReceipt, onTipUpdate, 
               onValueChange={(value: 'amount' | 'percentage') => setTipType(value)}
               className="mt-3"
             >
-              <div className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50">
+              <div 
+                className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50"
+                onClick={() => setTipType('percentage')}
+              >
                 <RadioGroupItem value="percentage" id="percentage" />
                 <Label htmlFor="percentage" className="flex items-center gap-2 cursor-pointer flex-1">
                   <Percent className="h-4 w-4" />
                   <span>Tip percentage (e.g., 15%)</span>
                 </Label>
               </div>
-              <div className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50">
+              <div 
+                className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-muted/50"
+                onClick={() => setTipType('amount')}
+              >
                 <RadioGroupItem value="amount" id="amount" />
                 <Label htmlFor="amount" className="flex items-center gap-2 cursor-pointer flex-1">
                   <DollarSign className="h-4 w-4" />
