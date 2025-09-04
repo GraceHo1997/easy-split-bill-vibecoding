@@ -53,7 +53,7 @@ export const TaxInput: React.FC<TaxInputProps> = ({ parsedReceipt, onTaxUpdate, 
         });
         return;
       }
-      calculatedTax = (parsedReceipt.subtotal * inputValue) / 100;
+      calculatedTax = Math.round((parsedReceipt.subtotal * inputValue) / 100 * 100) / 100;
     } else {
       calculatedTax = inputValue;
     }
@@ -169,7 +169,7 @@ export const TaxInput: React.FC<TaxInputProps> = ({ parsedReceipt, onTaxUpdate, 
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {taxType === 'percentage' 
-                ? `This will calculate ${taxValue ? `$${((parseFloat(taxValue) || 0) * parsedReceipt.subtotal / 100).toFixed(2)}` : '$0.00'} based on your subtotal`
+                ? `This will calculate ${taxValue ? `$${(Math.round(((parseFloat(taxValue) || 0) * parsedReceipt.subtotal / 100) * 100) / 100).toFixed(2)}` : '$0.00'} based on your subtotal`
                 : 'Enter the tax amount directly from your receipt'
               }
             </p>
@@ -188,7 +188,7 @@ export const TaxInput: React.FC<TaxInputProps> = ({ parsedReceipt, onTaxUpdate, 
                     <span>Tax:</span>
                     <span>
                       ${taxType === 'percentage' 
-                        ? ((parseFloat(taxValue) * parsedReceipt.subtotal) / 100).toFixed(2)
+                        ? (Math.round(((parseFloat(taxValue) * parsedReceipt.subtotal) / 100) * 100) / 100).toFixed(2)
                         : parseFloat(taxValue).toFixed(2)
                       }
                     </span>
@@ -202,7 +202,7 @@ export const TaxInput: React.FC<TaxInputProps> = ({ parsedReceipt, onTaxUpdate, 
                     <span>
                       ${(parsedReceipt.subtotal + 
                         (taxType === 'percentage' 
-                          ? (parseFloat(taxValue) * parsedReceipt.subtotal) / 100
+                          ? Math.round(((parseFloat(taxValue) * parsedReceipt.subtotal) / 100) * 100) / 100
                           : parseFloat(taxValue)
                         ) + 
                         parsedReceipt.tip
