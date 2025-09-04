@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ReceiptUpload } from '@/components/ReceiptUpload';
-import { TaxInput } from '@/components/TaxInput';
+import { TipInput } from '@/components/TipInput';
 import { CalculationModeSelector } from '@/components/CalculationModeSelector';
 import { ItemSelector } from '@/components/ItemSelector';
 import { IndividualItemCalculator } from '@/components/IndividualItemCalculator';
@@ -30,7 +30,7 @@ interface BillTotals {
   userShare: number;
 }
 
-type Step = 'upload' | 'tax-input' | 'mode' | 'individual' | 'select' | 'summary';
+type Step = 'upload' | 'tip-input' | 'mode' | 'individual' | 'select' | 'summary';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState<Step>('upload');
@@ -78,9 +78,9 @@ const Index = () => {
 
       setParsedReceipt(interpretData.interpretation);
       
-      // Check if tax is detected, if not, go to tax input step
-      if (interpretData.interpretation.tax === 0) {
-        setCurrentStep('tax-input');
+      // Check if tip is detected, if not, go to tip input step
+      if (interpretData.interpretation.tip === 0) {
+        setCurrentStep('tip-input');
       } else {
         setCurrentStep('mode');
       }
@@ -101,7 +101,7 @@ const Index = () => {
     }
   };
 
-  const handleTaxUpdate = (updatedReceipt: ParsedReceipt) => {
+  const handleTipUpdate = (updatedReceipt: ParsedReceipt) => {
     setParsedReceipt(updatedReceipt);
     setCurrentStep('mode');
   };
@@ -140,19 +140,19 @@ const Index = () => {
     setCurrentStep('mode');
   };
 
-  const handleBackToTaxInput = () => {
-    setCurrentStep('tax-input');
+  const handleBackToTipInput = () => {
+    setCurrentStep('tip-input');
   };
 
   const getStepNumber = (step: Step) => {
-    const hasTaxInput = parsedReceipt?.tax === 0;
+    const hasTipInput = parsedReceipt?.tip === 0;
     switch (step) {
       case 'upload': return 1;
-      case 'tax-input': return 2;
-      case 'mode': return hasTaxInput ? 3 : 2;
-      case 'individual': return hasTaxInput ? 4 : 3;
-      case 'select': return hasTaxInput ? 4 : 3;
-      case 'summary': return hasTaxInput ? 5 : 4;
+      case 'tip-input': return 2;
+      case 'mode': return hasTipInput ? 3 : 2;
+      case 'individual': return hasTipInput ? 4 : 3;
+      case 'select': return hasTipInput ? 4 : 3;
+      case 'summary': return hasTipInput ? 5 : 4;
       default: return 1;
     }
   };
@@ -191,9 +191,9 @@ const Index = () => {
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-4">
             {(() => {
-              const hasTaxInput = parsedReceipt?.tax === 0;
+              const hasTipInput = parsedReceipt?.tip === 0;
               const baseSteps = ['Upload Receipt'];
-              if (hasTaxInput) baseSteps.push('Add Tax');
+              if (hasTipInput) baseSteps.push('Add Tip');
               baseSteps.push('Choose Method');
               if (calculationMode === 'individual') {
                 baseSteps.push('Calculate');
@@ -219,14 +219,14 @@ const Index = () => {
                   `}>
                     {stepNum}
                   </div>
-                  {index < (() => {
-                    const hasTaxInput = parsedReceipt?.tax === 0;
-                    if (calculationMode === 'individual') {
-                      return hasTaxInput ? 3 : 2;
-                    } else {
-                      return hasTaxInput ? 4 : 3;
-                    }
-                  })() && (
+                   {index < (() => {
+                     const hasTipInput = parsedReceipt?.tip === 0;
+                     if (calculationMode === 'individual') {
+                       return hasTipInput ? 3 : 2;
+                     } else {
+                       return hasTipInput ? 4 : 3;
+                     }
+                   })() && (
                     <div className={`
                       w-12 h-0.5 mx-2 transition-all duration-300
                       ${isCompleted ? 'bg-success' : 'bg-border'}
@@ -247,10 +247,10 @@ const Index = () => {
             />
           )}
 
-          {currentStep === 'tax-input' && parsedReceipt && (
-            <TaxInput
+          {currentStep === 'tip-input' && parsedReceipt && (
+            <TipInput
               parsedReceipt={parsedReceipt}
-              onTaxUpdate={handleTaxUpdate}
+              onTipUpdate={handleTipUpdate}
               onBack={() => setCurrentStep('upload')}
             />
           )}
@@ -258,7 +258,7 @@ const Index = () => {
           {currentStep === 'mode' && parsedReceipt && (
             <CalculationModeSelector
               onModeSelect={handleModeSelect}
-              onBack={parsedReceipt.tax === 0 ? handleBackToTaxInput : () => setCurrentStep('upload')}
+              onBack={parsedReceipt.tip === 0 ? handleBackToTipInput : () => setCurrentStep('upload')}
             />
           )}
 
