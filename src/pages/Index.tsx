@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ReceiptUpload } from '@/components/ReceiptUpload';
+import { TaxInput } from '@/components/TaxInput';
 import { CalculationModeSelector } from '@/components/CalculationModeSelector';
 import { ItemSelector } from '@/components/ItemSelector';
 import { IndividualItemCalculator } from '@/components/IndividualItemCalculator';
@@ -29,7 +30,7 @@ interface BillTotals {
   userShare: number;
 }
 
-type Step = 'upload' | 'mode' | 'individual' | 'select' | 'summary';
+type Step = 'upload' | 'tax-input' | 'mode' | 'individual' | 'select' | 'summary';
 
 const Index = () => {
   const [currentStep, setCurrentStep] = useState<Step>('upload');
@@ -76,7 +77,13 @@ const Index = () => {
       }
 
       setParsedReceipt(interpretData.interpretation);
-      setCurrentStep('mode');
+      
+      // Check if tax is detected, if not, go to tax input step
+      if (interpretData.interpretation.tax === 0) {
+        setCurrentStep('tax-input');
+      } else {
+        setCurrentStep('mode');
+      }
       toast({
         title: "Upload Successful",
         description: "Receipt parsed successfully, please choose calculation method",
@@ -92,6 +99,11 @@ const Index = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleTaxUpdate = (updatedReceipt: ParsedReceipt) => {
+    setParsedReceipt(updatedReceipt);
+    setCurrentStep('mode');
   };
 
   const handleModeSelect = (mode: 'individual' | 'shared') => {
@@ -128,13 +140,19 @@ const Index = () => {
     setCurrentStep('mode');
   };
 
+  const handleBackToTaxInput = () => {
+    setCurrentStep('tax-input');
+  };
+
   const getStepNumber = (step: Step) => {
+    const hasTaxInput = parsedReceipt?.tax === 0;
     switch (step) {
       case 'upload': return 1;
-      case 'mode': return 2;
-      case 'individual': return calculationMode === 'individual' ? 3 : 3;
-      case 'select': return 3;
-      case 'summary': return 4;
+      case 'tax-input': return 2;
+      case 'mode': return hasTaxInput ? 3 : 2;
+      case 'individual': return hasTaxInput ? 4 : 3;
+      case 'select': return hasTaxInput ? 4 : 3;
+      case 'summary': return hasTaxInput ? 5 : 4;
       default: return 1;
     }
   };
@@ -172,10 +190,18 @@ const Index = () => {
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-4">
-            {(calculationMode === 'individual' 
-              ? ['Upload Receipt', 'Choose Method', 'Calculate'] 
-              : ['Upload Receipt', 'Choose Method', 'Calculate', 'Summary']
-            ).map((label, index) => {
+            {(() => {
+              const hasTaxInput = parsedReceipt?.tax === 0;
+              const baseSteps = ['Upload Receipt'];
+              if (hasTaxInput) baseSteps.push('Add Tax');
+              baseSteps.push('Choose Method');
+              if (calculationMode === 'individual') {
+                baseSteps.push('Calculate');
+              } else {
+                baseSteps.push('Calculate', 'Summary');
+              }
+              return baseSteps;
+            })().map((label, index) => {
               const stepNum = index + 1;
               const isActive = getStepNumber(currentStep) === stepNum;
               const isCompleted = getStepNumber(currentStep) > stepNum;
@@ -193,7 +219,14 @@ const Index = () => {
                   `}>
                     {stepNum}
                   </div>
-                  {index < (calculationMode === 'individual' ? 2 : 3) && (
+                  {index < (() => {
+                    const hasTaxInput = parsedReceipt?.tax === 0;
+                    if (calculationMode === 'individual') {
+                      return hasTaxInput ? 3 : 2;
+                    } else {
+                      return hasTaxInput ? 4 : 3;
+                    }
+                  })() && (
                     <div className={`
                       w-12 h-0.5 mx-2 transition-all duration-300
                       ${isCompleted ? 'bg-success' : 'bg-border'}
@@ -214,10 +247,18 @@ const Index = () => {
             />
           )}
 
+          {currentStep === 'tax-input' && parsedReceipt && (
+            <TaxInput
+              parsedReceipt={parsedReceipt}
+              onTaxUpdate={handleTaxUpdate}
+              onBack={() => setCurrentStep('upload')}
+            />
+          )}
+
           {currentStep === 'mode' && parsedReceipt && (
             <CalculationModeSelector
               onModeSelect={handleModeSelect}
-              onBack={() => setCurrentStep('upload')}
+              onBack={parsedReceipt.tax === 0 ? handleBackToTaxInput : () => setCurrentStep('upload')}
             />
           )}
 
