@@ -1,73 +1,116 @@
-# Welcome to your Lovable project
+# EasySplit 🧾💰
 
-## Project info
+**智能帳單分帳工具** - AI 驅動的收據掃描與帳單分攤應用
 
-**URL**: https://lovable.dev/projects/8fdf4ce1-8c40-4814-aae0-0311c076eae5
+## 功能特色
 
-## How can I edit this code?
+### 🤖 AI 智能 OCR 收據掃描
+- 上傳收據照片，自動識別所有項目與價格
+- 支援 Google Vision API 進行高精度文字識別
+- 使用 Gemini AI 智能解析收據內容
 
-There are several ways of editing your application.
+### 📊 兩種分帳模式
+- **個人項目計算**：每人選擇自己消費的項目，自動計算應付金額
+- **共享分攤**：選擇共同消費的項目，平均分攤費用
 
-**Use Lovable**
+### 💡 智能計算
+- 自動識別小計、稅金、小費
+- 支援手動輸入/調整小費金額
+- 按比例分攤稅金與小費
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8fdf4ce1-8c40-4814-aae0-0311c076eae5) and start prompting.
+### 📱 現代化 UI
+- 響應式設計，支援手機與桌面
+- 深色/淺色主題
+- 直覺的步驟引導流程
 
-Changes made via Lovable will be committed automatically to this repo.
+## 技術架構
 
-**Use your preferred IDE**
+| 類別 | 技術 |
+|------|------|
+| 前端框架 | React 18 + TypeScript |
+| 建構工具 | Vite |
+| 樣式 | Tailwind CSS |
+| UI 元件 | shadcn/ui |
+| 後端 | Supabase Edge Functions |
+| OCR | Google Cloud Vision API |
+| AI 解析 | Lovable AI Gateway (Gemini) |
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 使用流程
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```
+1. 上傳收據 📷
+      ↓
+2. 輸入小費（若未偵測到）💵
+      ↓
+3. 選擇分帳模式 🔀
+      ↓
+4. 選擇/勾選項目 ✅
+      ↓
+5. 查看應付金額 💳
+```
 
-Follow these steps:
+## 快速開始
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+### 環境需求
+- Node.js 18+
+- npm 或 bun
+
+### 安裝步驟
+
+```bash
+# 1. 複製專案
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 2. 安裝依賴
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 3. 啟動開發伺服器
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### 環境變數設定
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+在 Supabase Edge Functions 中需設定以下密鑰：
 
-**Use GitHub Codespaces**
+| 變數名稱 | 說明 |
+|----------|------|
+| `GOOGLE_VISION_API_KEY` | Google Cloud Vision API 金鑰 |
+| `LOVABLE_API_KEY` | Lovable AI Gateway API 金鑰（自動設定）|
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 專案結構
 
-## What technologies are used for this project?
+```
+src/
+├── components/
+│   ├── ReceiptUpload.tsx      # 收據上傳元件
+│   ├── TipInput.tsx           # 小費輸入元件
+│   ├── CalculationModeSelector.tsx  # 分帳模式選擇
+│   ├── ItemSelector.tsx       # 共享項目選擇
+│   ├── IndividualItemCalculator.tsx # 個人項目計算
+│   └── PaymentSummary.tsx     # 付款摘要
+├── pages/
+│   └── Index.tsx              # 主頁面
+└── integrations/
+    └── supabase/              # Supabase 整合
 
-This project is built with:
+supabase/functions/
+├── process-receipt/           # OCR 處理函數
+└── interpret-receipt/         # AI 收據解析函數
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 部署
 
-## How can I deploy this project?
+透過 [Lovable](https://lovable.dev) 平台一鍵部署：
 
-Simply open [Lovable](https://lovable.dev/projects/8fdf4ce1-8c40-4814-aae0-0311c076eae5) and click on Share -> Publish.
+1. 開啟專案
+2. 點擊 **Share → Publish**
+3. 完成！🎉
 
-## Can I connect a custom domain to my Lovable project?
+## 授權
 
-Yes, you can!
+MIT License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Built with ❤️ using [Lovable](https://lovable.dev)
