@@ -13,12 +13,12 @@ serve(async (req) => {
   }
 
   try {
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     
-    if (!openAIApiKey) {
-      console.error('OPENAI_API_KEY is not set');
+    if (!lovableApiKey) {
+      console.error('LOVABLE_API_KEY is not set');
       return new Response(
-        JSON.stringify({ error: 'OpenAI API key is not configured' }),
+        JSON.stringify({ error: 'Lovable AI API key is not configured' }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -38,17 +38,17 @@ serve(async (req) => {
       );
     }
 
-    console.log('Interpreting OCR text with OpenAI...');
+    console.log('Interpreting OCR text with Lovable AI (Gemini)...');
 
-    // Call OpenAI API to interpret the receipt
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call Lovable AI Gateway to interpret the receipt
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           {
             role: 'system',
@@ -85,36 +85,58 @@ JSON format:
       }),
     });
 
-    if (!openAIResponse.ok) {
-      const errorText = await openAIResponse.text();
-      console.error('OpenAI API error:', errorText);
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error('Lovable AI Gateway error:', aiResponse.status, errorText);
+      
+      if (aiResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded, please try again later' }),
+          {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
+      if (aiResponse.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'AI credits exhausted, please add funds to your workspace' }),
+          {
+            status: 402,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      
       return new Response(
         JSON.stringify({ 
-          error: 'Failed to interpret receipt with OpenAI',
+          error: 'Failed to interpret receipt with AI',
           details: errorText 
         }),
         {
-          status: openAIResponse.status,
+          status: aiResponse.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
 
-    const openAIData = await openAIResponse.json();
-    console.log('OpenAI response received');
+    const aiData = await aiResponse.json();
+    console.log('Lovable AI response received');
 
-    // Extract the interpretation from OpenAI response
+    // Extract the interpretation from AI response
     let interpretation;
     try {
-      const content = openAIData.choices[0].message.content.trim();
+      const content = aiData.choices[0].message.content.trim();
       // Remove markdown code block if present
       const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
       interpretation = JSON.parse(cleanContent);
     } catch (parseError) {
-      console.error('Error parsing OpenAI response:', parseError);
+      console.error('Error parsing AI response:', parseError);
+      console.error('Raw content:', aiData.choices?.[0]?.message?.content);
       return new Response(
         JSON.stringify({ 
-          error: 'Failed to parse OpenAI response',
+          error: 'Failed to parse AI response',
           details: parseError.message 
         }),
         {
