@@ -1,7 +1,1 @@
-project_id = "jztmntntdktoaurnbnmi"
-
-[functions.process-receipt]
-verify_jwt = false
-
-[functions.interpret-receipt]
-verify_jwt = false
+project_id = "lswsqoiocrflpmcsmjel"
