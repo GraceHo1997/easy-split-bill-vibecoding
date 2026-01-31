@@ -5,7 +5,7 @@ It combines OCR, AI semantic parsing, and a guided step-by-step UX to handle rea
 
 
 ## Demo 
-🎥 [Watch Demo Video]([https://github.com/yourname/yourrepo/assets/xxxx](https://github.com/GraceHo1997/easy-split-bill-vibecoding/issues/1#issue-3878214383))
+🎥 [Watch Demo Video](https://github.com/GraceHo1997/easy-split-bill-vibecoding/issues/1#issue-3878214383)
 
 Live Demo: https://easy-split-bill-project.lovable.app
 
