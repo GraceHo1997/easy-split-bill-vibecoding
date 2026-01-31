@@ -3,6 +3,12 @@
 EasySplit is a web application that helps users **split restaurant bills fairly** using AI-powered receipt scanning and transparent cost breakdowns.
 It combines OCR, AI semantic parsing, and a guided step-by-step UX to handle real-world receipts with shared items, tax, and tips.
 
+
+## Demo 
+🎥 [Watch Demo Video](https://github.com/yourname/yourrepo/assets/xxxx)
+
+Live Demo: https://easy-split-bill-project.lovable.app
+
 ---
 
 ## ✨ Key Features
@@ -139,7 +145,4 @@ Receipt Image -> Google Cloud Vision API (OCR) -> Raw OCR Text -> Lovable AI Gat
 
 ---
 
-Live Demo: https://easy-split-bill-project.lovable.app
-
-Demo screenshots available in `/screenshots`
 
