@@ -1,116 +1,145 @@
-# EasySplit 🧾💰
+# EasySplit 🧾✨
 
-**智能帳單分帳工具** - AI 驅動的收據掃描與帳單分攤應用
-
-## 功能特色
-
-### 🤖 AI 智能 OCR 收據掃描
-- 上傳收據照片，自動識別所有項目與價格
-- 支援 Google Vision API 進行高精度文字識別
-- 使用 Gemini AI 智能解析收據內容
-
-### 📊 兩種分帳模式
-- **個人項目計算**：每人選擇自己消費的項目，自動計算應付金額
-- **共享分攤**：選擇共同消費的項目，平均分攤費用
-
-### 💡 智能計算
-- 自動識別小計、稅金、小費
-- 支援手動輸入/調整小費金額
-- 按比例分攤稅金與小費
-
-### 📱 現代化 UI
-- 響應式設計，支援手機與桌面
-- 深色/淺色主題
-- 直覺的步驟引導流程
-
-## 技術架構
-
-| 類別 | 技術 |
-|------|------|
-| 前端框架 | React 18 + TypeScript |
-| 建構工具 | Vite |
-| 樣式 | Tailwind CSS |
-| UI 元件 | shadcn/ui |
-| 後端 | Supabase Edge Functions |
-| OCR | Google Cloud Vision API |
-| AI 解析 | Lovable AI Gateway (Gemini) |
-
-## 使用流程
-
-```
-1. 上傳收據 📷
-      ↓
-2. 輸入小費（若未偵測到）💵
-      ↓
-3. 選擇分帳模式 🔀
-      ↓
-4. 選擇/勾選項目 ✅
-      ↓
-5. 查看應付金額 💳
-```
-
-## 快速開始
-
-### 環境需求
-- Node.js 18+
-- npm 或 bun
-
-### 安裝步驟
-
-```bash
-# 1. 複製專案
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
-
-# 2. 安裝依賴
-npm install
-
-# 3. 啟動開發伺服器
-npm run dev
-```
-
-### 環境變數設定
-
-在 Supabase Edge Functions 中需設定以下密鑰：
-
-| 變數名稱 | 說明 |
-|----------|------|
-| `GOOGLE_VISION_API_KEY` | Google Cloud Vision API 金鑰 |
-| `LOVABLE_API_KEY` | Lovable AI Gateway API 金鑰（自動設定）|
-
-## 專案結構
-
-```
-src/
-├── components/
-│   ├── ReceiptUpload.tsx      # 收據上傳元件
-│   ├── TipInput.tsx           # 小費輸入元件
-│   ├── CalculationModeSelector.tsx  # 分帳模式選擇
-│   ├── ItemSelector.tsx       # 共享項目選擇
-│   ├── IndividualItemCalculator.tsx # 個人項目計算
-│   └── PaymentSummary.tsx     # 付款摘要
-├── pages/
-│   └── Index.tsx              # 主頁面
-└── integrations/
-    └── supabase/              # Supabase 整合
-
-supabase/functions/
-├── process-receipt/           # OCR 處理函數
-└── interpret-receipt/         # AI 收據解析函數
-```
-
-## 部署
-
-透過 [Lovable](https://lovable.dev) 平台一鍵部署：
-
-1. 開啟專案
-2. 點擊 **Share → Publish**
-3. 完成！🎉
-
-## 授權
-
-MIT License
+EasySplit is a web application that helps users **split restaurant bills fairly** using AI-powered receipt scanning and transparent cost breakdowns.
+It combines OCR, AI semantic parsing, and a guided step-by-step UX to handle real-world receipts with shared items, tax, and tips.
 
 ---
 
-Built with ❤️ using [Lovable](https://lovable.dev)
+## ✨ Key Features
+
+- Upload restaurant receipts (JPG / PNG / PDF)
+- OCR text extraction using **Google Cloud Vision API**
+- AI-powered receipt interpretation via **Lovable AI Gateway (Gemini)**
+- Automatic subtotal, tax, and tip calculation
+- Per-item split by number of people
+- Two calculation modes:
+  - Individual Item Calculation
+  - Shared Item Selection
+- Export results as a shareable image
+- Optimized sharing UX for desktop and mobile
+
+---
+
+## 🧱 Tech Stack
+
+### Frontend
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+
+### Backend / APIs
+- **Google Cloud Vision API**
+  - OCR text recognition from receipt images
+- **Lovable AI Gateway (Gemini)**
+  - AI semantic parsing of noisy OCR output
+- **Supabase Edge Functions**
+  - Serverless backend logic
+
+### Deployment
+- Frontend deployed via **Lovable platform**
+- Backend logic handled by **Supabase Edge Functions**
+
+---
+
+## 🧭 User Flow 
+
+### Step 1 — Upload Receipt
+Users upload a receipt image via drag & drop or file selection.
+
+Supported formats:
+- JPG
+- PNG
+- PDF (up to 10MB)
+
+---
+
+### Step 2 — Add Tip Information
+If a tip is not detected on the receipt, users can manually add it.
+
+Options:
+- Enter tip as a **percentage** (e.g. 20%)
+- Enter tip as a **fixed amount**
+- Skip tip entirely
+
+Tip calculations are based on the **pre-tax subtotal by default**, following common U.S. tipping practices.
+
+---
+
+### Step 3 — Choose Calculation Method
+Users choose how they want to calculate their share:
+
+#### 🧮 Individual Item Calculation
+- View the full breakdown of each item
+- See base price, proportional tax, and tip per item
+- Ideal for understanding the exact cost of each dish
+
+#### 👥 Shared Selection
+- Select only the items you ordered
+- Specify how many people share each item
+- Automatically splits tax and tip proportionally
+
+---
+
+### Step 4 — View Results & Share
+EasySplit displays a clear breakdown including:
+- Subtotal
+- Tax
+- Tip
+- Final total
+
+Each item shows:
+- Base price
+- Allocated tax
+- Allocated tip
+- Final per-item cost
+
+Users can:
+- 📥 Download the result as an image
+- 📋 Copy the image (desktop)
+- 📤 Share via native share menu (mobile)
+
+---
+
+## 📱 Cross-Device Sharing Strategy
+
+| Platform | Primary Action | Fallback |
+|--------|---------------|----------|
+| Desktop | Copy as Image (Clipboard API) | Download Image |
+| Mobile | Native Share (Web Share API) | Download Image |
+
+This ensures a smooth sharing experience across browsers and devices.
+
+---
+
+## 🧠 System Architecture
+
+Receipt Image -> Google Cloud Vision API (OCR) -> Raw OCR Text -> Lovable AI Gateway (Gemini) -> Structured JSON -> Frontend Calculation & Rendering
+
+
+---
+
+## 📌 Design Considerations
+
+- Handles messy, real-world receipts with inconsistent formatting
+- Avoids misleading “suggested gratuity” values printed on receipts
+- Prioritizes transparency and user control in cost calculations
+- Designed for both solo payments and shared dining scenarios
+
+---
+
+## 🚀 Future Improvements
+
+- Google login & saved receipt history
+- Shareable result links
+- Editable item names and prices
+- Improved OCR correction for low-quality images
+- Multi-currency and locale support
+
+---
+
+Live Demo: https://easy-split-bill-project.lovable.app
+
+Demo screenshots available in `/screenshots`
+
