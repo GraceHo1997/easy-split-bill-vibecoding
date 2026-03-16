@@ -16,6 +16,7 @@ interface BillTotals {
     name: string;
     price: number;
     shareCount: number;
+    myPortions?: number;
     itemShare: number;
   }>;
   customAmount?: number;
@@ -227,7 +228,7 @@ export const PaymentSummary: React.FC<PaymentSummaryProps> = ({
                         {item.name}
                         {item.shareCount > 1 && (
                           <span className="text-muted-foreground ml-1">
-                            (÷{item.shareCount})
+                            ({item.myPortions || 1}/{item.shareCount} shares)
                           </span>
                         )}
                       </span>
