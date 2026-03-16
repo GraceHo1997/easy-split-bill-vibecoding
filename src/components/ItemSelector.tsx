@@ -279,7 +279,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                     {item.name} 
                     {item.shareCount > 1 && (
                       <span className="text-muted-foreground ml-1">
-                        ({item.myPortions}/{item.shareCount}份)
+                        ({item.myPortions}/{item.shareCount} shares)
                       </span>
                     )}
                   </span>
