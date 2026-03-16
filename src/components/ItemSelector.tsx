@@ -278,11 +278,11 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                     {item.name} 
                     {item.shareCount > 1 && (
                       <span className="text-muted-foreground ml-1">
-                        (÷{item.shareCount})
+                        ({item.myPortions}/{item.shareCount}份)
                       </span>
                     )}
                   </span>
-                  <span>${(Math.round((item.price / item.shareCount) * 100) / 100).toFixed(2)}</span>
+                  <span>${(Math.round((item.price / item.shareCount * item.myPortions) * 100) / 100).toFixed(2)}</span>
                 </div>
               ))}
               {customAmount && parseFloat(customAmount) > 0 && (
