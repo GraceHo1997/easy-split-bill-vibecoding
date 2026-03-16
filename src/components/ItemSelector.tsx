@@ -105,7 +105,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
   const calculateMyShare = () => {
     // Calculate selected items total with sharing (divide first, then round)
     const selectedTotal = selectedItems.reduce((sum, item) => {
-      const itemShare = Math.round((item.price / item.shareCount) * 100) / 100;
+      const itemShare = Math.round((item.price / item.shareCount * item.myPortions) * 100) / 100;
       return sum + itemShare;
     }, 0);
     
