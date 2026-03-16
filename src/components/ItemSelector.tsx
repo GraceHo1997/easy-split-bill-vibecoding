@@ -28,6 +28,7 @@ interface BillTotals {
     name: string;
     price: number;
     shareCount: number;
+    myPortions: number;
     itemShare: number;
   }>;
   customAmount?: number;
@@ -47,6 +48,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       id: `item-${index}`,
       selected: false,
       shareCount: 1,
+      myPortions: 1,
     }))
   );
   const [customAmount, setCustomAmount] = useState<string>('');
@@ -58,8 +60,20 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
   };
 
   const updateShareCount = (id: string, shareCount: number) => {
+    setItems(items.map(item => {
+      if (item.id !== id) return item;
+      const newShareCount = shareCount || 1;
+      return { 
+        ...item, 
+        shareCount: newShareCount,
+        myPortions: Math.min(item.myPortions, newShareCount),
+      };
+    }));
+  };
+
+  const updateMyPortions = (id: string, portions: number) => {
     setItems(items.map(item => 
-      item.id === id ? { ...item, shareCount: shareCount || 1 } : item
+      item.id === id ? { ...item, myPortions: Math.min(Math.max(portions || 1, 1), item.shareCount) } : item
     ));
   };
 
@@ -74,6 +88,17 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
     updateShareCount(id, shareCount);
   };
 
+  const handleMyPortionsFocus = (id: string) => {
+    setItems(items.map(item => 
+      item.id === id ? { ...item, myPortions: '' as any } : item
+    ));
+  };
+
+  const handleMyPortionsBlur = (id: string, value: string) => {
+    const portions = parseInt(value) || 1;
+    updateMyPortions(id, portions);
+  };
+
   const selectedItems = useMemo(() => {
     return items.filter(item => item.selected);
   }, [items]);
@@ -81,7 +106,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
   const calculateMyShare = () => {
     // Calculate selected items total with sharing (divide first, then round)
     const selectedTotal = selectedItems.reduce((sum, item) => {
-      const itemShare = Math.round((item.price / item.shareCount) * 100) / 100;
+      const itemShare = Math.round((item.price / item.shareCount * item.myPortions) * 100) / 100;
       return sum + itemShare;
     }, 0);
     
@@ -115,7 +140,8 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
         name: item.name,
         price: item.price,
         shareCount: item.shareCount,
-        itemShare: Math.round((item.price / item.shareCount) * 100) / 100
+        myPortions: item.myPortions,
+        itemShare: Math.round((item.price / item.shareCount * item.myPortions) * 100) / 100
       })),
       customAmount: customAmountNum > 0 ? customAmountNum : undefined,
     };
@@ -187,7 +213,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                   <div className="flex items-center gap-3">
                     <span className="text-muted-foreground">${item.price.toFixed(2)}</span>
                     {item.selected && (
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                         <Users className="h-4 w-4" />
                         <Input
                           type="number"
@@ -198,7 +224,19 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                           onBlur={(e) => handleShareCountBlur(item.id, e.target.value)}
                           className="w-16 h-8 text-center no-arrows"
                         />
-                        <span className="text-sm text-muted-foreground">people</span>
+                        <span className="text-sm text-muted-foreground">人分</span>
+                        <span className="text-sm text-muted-foreground">，我付</span>
+                        <Input
+                          type="number"
+                          min="1"
+                          max={item.shareCount}
+                          value={item.myPortions}
+                          onChange={(e) => updateMyPortions(item.id, parseInt(e.target.value) || 1)}
+                          onFocus={() => handleMyPortionsFocus(item.id)}
+                          onBlur={(e) => handleMyPortionsBlur(item.id, e.target.value)}
+                          className="w-16 h-8 text-center no-arrows"
+                        />
+                        <span className="text-sm text-muted-foreground">人份</span>
                       </div>
                     )}
                   </div>
@@ -241,11 +279,11 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                     {item.name} 
                     {item.shareCount > 1 && (
                       <span className="text-muted-foreground ml-1">
-                        (÷{item.shareCount})
+                        ({item.myPortions}/{item.shareCount}份)
                       </span>
                     )}
                   </span>
-                  <span>${(Math.round((item.price / item.shareCount) * 100) / 100).toFixed(2)}</span>
+                  <span>${(Math.round((item.price / item.shareCount * item.myPortions) * 100) / 100).toFixed(2)}</span>
                 </div>
               ))}
               {customAmount && parseFloat(customAmount) > 0 && (
@@ -259,7 +297,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                   <span>Subtotal:</span>
                   <span>${(
                     selectedItems.reduce((sum, item) => {
-                      const itemShare = Math.round((item.price / item.shareCount) * 100) / 100;
+                      const itemShare = Math.round((item.price / item.shareCount * item.myPortions) * 100) / 100;
                       return sum + itemShare;
                     }, 0) +
                     (customAmount ? parseFloat(customAmount) || 0 : 0)
