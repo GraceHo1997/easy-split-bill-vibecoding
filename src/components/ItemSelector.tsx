@@ -47,6 +47,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
       id: `item-${index}`,
       selected: false,
       shareCount: 1,
+      myPortions: 1,
     }))
   );
   const [customAmount, setCustomAmount] = useState<string>('');
