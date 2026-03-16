@@ -16,6 +16,7 @@ interface BillTotals {
     name: string;
     price: number;
     shareCount: number;
+    myPortions?: number;
     itemShare: number;
   }>;
   customAmount?: number;
