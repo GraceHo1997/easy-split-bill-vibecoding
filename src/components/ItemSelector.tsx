@@ -59,8 +59,20 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
   };
 
   const updateShareCount = (id: string, shareCount: number) => {
+    setItems(items.map(item => {
+      if (item.id !== id) return item;
+      const newShareCount = shareCount || 1;
+      return { 
+        ...item, 
+        shareCount: newShareCount,
+        myPortions: Math.min(item.myPortions, newShareCount),
+      };
+    }));
+  };
+
+  const updateMyPortions = (id: string, portions: number) => {
     setItems(items.map(item => 
-      item.id === id ? { ...item, shareCount: shareCount || 1 } : item
+      item.id === id ? { ...item, myPortions: Math.min(Math.max(portions || 1, 1), item.shareCount) } : item
     ));
   };
 
@@ -73,6 +85,17 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
   const handleShareCountBlur = (id: string, value: string) => {
     const shareCount = parseInt(value) || 1;
     updateShareCount(id, shareCount);
+  };
+
+  const handleMyPortionsFocus = (id: string) => {
+    setItems(items.map(item => 
+      item.id === id ? { ...item, myPortions: '' as any } : item
+    ));
+  };
+
+  const handleMyPortionsBlur = (id: string, value: string) => {
+    const portions = parseInt(value) || 1;
+    updateMyPortions(id, portions);
   };
 
   const selectedItems = useMemo(() => {
