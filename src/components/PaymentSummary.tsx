@@ -228,7 +228,7 @@ export const PaymentSummary: React.FC<PaymentSummaryProps> = ({
                         {item.name}
                         {item.shareCount > 1 && (
                           <span className="text-muted-foreground ml-1">
-                            (÷{item.shareCount})
+                            ({item.myPortions || 1}/{item.shareCount} shares)
                           </span>
                         )}
                       </span>
