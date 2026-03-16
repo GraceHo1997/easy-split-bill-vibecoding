@@ -139,7 +139,8 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
         name: item.name,
         price: item.price,
         shareCount: item.shareCount,
-        itemShare: Math.round((item.price / item.shareCount) * 100) / 100
+        myPortions: item.myPortions,
+        itemShare: Math.round((item.price / item.shareCount * item.myPortions) * 100) / 100
       })),
       customAmount: customAmountNum > 0 ? customAmountNum : undefined,
     };
