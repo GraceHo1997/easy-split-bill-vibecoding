@@ -212,7 +212,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                   <div className="flex items-center gap-3">
                     <span className="text-muted-foreground">${item.price.toFixed(2)}</span>
                     {item.selected && (
-                      <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                         <Users className="h-4 w-4" />
                         <Input
                           type="number"
@@ -223,7 +223,19 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                           onBlur={(e) => handleShareCountBlur(item.id, e.target.value)}
                           className="w-16 h-8 text-center no-arrows"
                         />
-                        <span className="text-sm text-muted-foreground">people</span>
+                        <span className="text-sm text-muted-foreground">人分</span>
+                        <span className="text-sm text-muted-foreground">，我付</span>
+                        <Input
+                          type="number"
+                          min="1"
+                          max={item.shareCount}
+                          value={item.myPortions}
+                          onChange={(e) => updateMyPortions(item.id, parseInt(e.target.value) || 1)}
+                          onFocus={() => handleMyPortionsFocus(item.id)}
+                          onBlur={(e) => handleMyPortionsBlur(item.id, e.target.value)}
+                          className="w-16 h-8 text-center no-arrows"
+                        />
+                        <span className="text-sm text-muted-foreground">人份</span>
                       </div>
                     )}
                   </div>
