@@ -224,8 +224,8 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                           onBlur={(e) => handleShareCountBlur(item.id, e.target.value)}
                           className="w-16 h-8 text-center no-arrows"
                         />
-                        <span className="text-sm text-muted-foreground">人分</span>
-                        <span className="text-sm text-muted-foreground">，我付</span>
+                        <span className="text-sm text-muted-foreground">split by</span>
+                        <span className="text-sm text-muted-foreground">, I pay</span>
                         <Input
                           type="number"
                           min="1"
@@ -236,7 +236,7 @@ export const ItemSelector: React.FC<ItemSelectorProps> = ({ parsedReceipt, onCal
                           onBlur={(e) => handleMyPortionsBlur(item.id, e.target.value)}
                           className="w-16 h-8 text-center no-arrows"
                         />
-                        <span className="text-sm text-muted-foreground">人份</span>
+                        <span className="text-sm text-muted-foreground">shares</span>
                       </div>
                     )}
                   </div>
