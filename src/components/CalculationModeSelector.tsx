@@ -2,14 +2,15 @@ import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Checkbox } from './ui/checkbox';
-import { ArrowLeft, Calculator, Users } from 'lucide-react';
+import { ArrowLeft, Calculator, Users, Share2 } from 'lucide-react';
 
 interface CalculationModeSelectorProps {
   onModeSelect: (mode: 'individual' | 'shared') => void;
   onBack: () => void;
+  onShare?: () => void;
 }
 
-export const CalculationModeSelector: React.FC<CalculationModeSelectorProps> = ({ onModeSelect, onBack }) => {
+export const CalculationModeSelector: React.FC<CalculationModeSelectorProps> = ({ onModeSelect, onBack, onShare }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -50,6 +51,23 @@ export const CalculationModeSelector: React.FC<CalculationModeSelectorProps> = (
             </p>
           </CardContent>
         </Card>
+
+        {onShare && (
+          <Card className="cursor-pointer transition-all hover:shadow-md border-primary/40" onClick={onShare}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <Share2 className="h-5 w-5" />
+                Split with Friends (Share Link)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Get a link to send to your friends. Everyone picks their own items on the same page
+                and sees what others picked, with their total shown instantly.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
