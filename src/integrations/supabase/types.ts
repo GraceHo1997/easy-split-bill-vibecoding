@@ -14,7 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bill_selections: {
+        Row: {
+          created_at: string
+          id: string
+          item_index: number
+          my_portions: number
+          participant_id: string
+          participant_name: string
+          session_id: string
+          share_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_index: number
+          my_portions?: number
+          participant_id: string
+          participant_name: string
+          session_id: string
+          share_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_index?: number
+          my_portions?: number
+          participant_id?: string
+          participant_name?: string
+          session_id?: string
+          share_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_selections_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "bill_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bill_sessions: {
+        Row: {
+          created_at: string
+          id: string
+          receipt: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receipt: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receipt?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
