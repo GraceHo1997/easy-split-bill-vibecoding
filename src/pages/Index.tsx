@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ReceiptUpload } from '@/components/ReceiptUpload';
 import { TipInput } from '@/components/TipInput';
 import { CalculationModeSelector } from '@/components/CalculationModeSelector';
@@ -39,6 +40,7 @@ const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [calculationMode, setCalculationMode] = useState<'individual' | 'shared'>('shared');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleFileUpload = async (file: File) => {
     setIsProcessing(true);
@@ -104,6 +106,20 @@ const Index = () => {
   const handleTipUpdate = (updatedReceipt: ParsedReceipt) => {
     setParsedReceipt(updatedReceipt);
     setCurrentStep('mode');
+  };
+
+  const handleShare = async () => {
+    if (!parsedReceipt) return;
+    const { data, error } = await supabase
+      .from('bill_sessions')
+      .insert({ receipt: parsedReceipt as any })
+      .select('id')
+      .single();
+    if (error || !data) {
+      toast({ title: "Error", description: "Could not create share link", variant: "destructive" });
+      return;
+    }
+    navigate(`/bill/${data.id}`);
   };
 
   const handleModeSelect = (mode: 'individual' | 'shared') => {
@@ -258,6 +274,7 @@ const Index = () => {
           {currentStep === 'mode' && parsedReceipt && (
             <CalculationModeSelector
               onModeSelect={handleModeSelect}
+              onShare={handleShare}
               onBack={parsedReceipt.tip === 0 ? handleBackToTipInput : () => setCurrentStep('upload')}
             />
           )}
